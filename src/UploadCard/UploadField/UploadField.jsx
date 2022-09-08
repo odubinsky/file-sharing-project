@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import "./UploadField.css";
-import { useUpload } from "../../context/UploadContext";
+import { useUpload } from "../../context/UploadContext/UploadContext";
 import { Typography } from "antd";
 
 const UploadField = ({}) => {
@@ -13,7 +13,7 @@ const UploadField = ({}) => {
       <Typography.Title
         className="emptyStateText"
         level={3}
-      >{`Upload Your File (Max 15mb)`}</Typography.Title>
+      >{`Upload Your File`}</Typography.Title>
     </div>
   );
 };

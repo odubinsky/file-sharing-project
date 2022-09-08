@@ -17,15 +17,15 @@ app.use(function(req, res, next) {
   next();
 });
 
-const { GridFsStorage } = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
+// const { GridFsStorage } = require('multer-gridfs-storage');
+// const Grid = require('gridfs-stream');
 
-let gfs;
+// let gfs;
 
-dbconn.once('open', async  () => {
-  gfs = Grid(dbconn.db, mongoose.mongo);  
-  await gfs.collection('uploads');
-});
+// dbconn.once('open', async  () => {
+//   gfs = Grid(dbconn.db, mongoose.mongo);  
+//   await gfs.collection('uploads');
+// });
 
 // const storage = new GridFsStorage({
 //   url: "mongodb://localhost/project",
@@ -62,7 +62,7 @@ app.put(basePath + 'file', uploadMiddleware.single('file'), async (req, res) => 
     const fileInMemory = fs.existsSync(file.originalname);
     const fileName = file.originalname + (fileInMemory ? ('_' + Date.now()) : '');
     await dbconn.db.collection('files_collection').insertOne({fileName: file.originalname, expiresAt: new Date(Number(expirationTime))});
-    res.send(basePath + 'file/' + file.originalname);
+    res.send('localhost' + basePath + 'file/' + file.originalname);
   } else {
     res.status(500)
   }
@@ -134,7 +134,7 @@ cron.schedule('* * * * *', function() {
   cursor.forEach(doc => {
     const path = './files/' + doc.fileName;
     if(fs.existsSync(path)) {
-      fs.rmSync('./files/' + doc.fileName)
+      fs.rmSync(path)
     }
     dbconn.db.collection('files_collection').deleteOne({_id: doc._id})
 

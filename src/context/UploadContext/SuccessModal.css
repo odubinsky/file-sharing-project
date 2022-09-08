@@ -1,0 +1,13 @@
+.modalContainer {
+  position: absolute;
+  z-index: 10;
+  top: calc(50% - 200px);
+  left: calc(50% - 300px);
+  width: 600px;
+  height: 400px;
+  background-color: white;
+}
+
+.linkDisplay {
+  display: flex;
+}

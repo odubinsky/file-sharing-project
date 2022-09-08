@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import "./ActionButtons.css";
-import { useUpload } from "../../context/UploadContext";
+import { useUpload } from "../../context/UploadContext/UploadContext";
 import { Button } from "antd";
 
 const ActionButtons = ({}) => {

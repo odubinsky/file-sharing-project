@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import "./ExpirationTimeField.css";
-import { useUpload } from "../../context/UploadContext";
+import { useUpload } from "../../context/UploadContext/UploadContext";
 import { DatePicker, Typography, Alert } from "antd";
 import moment, { Moment } from 'moment'
 
@@ -18,6 +18,11 @@ const ExpirationTimeField = ({}) => {
     setExpirationTime(timeGotten);
   };
 
+  const disabledDate = (current: Moment) => {
+    // Can not select days before today and today
+    return current && current < moment().endOf('day');
+  };
+
   return (
     selectedFile?.expiration ? <div
       className={`datePickerContainer ${!!!selectedFile?.file ? "hidden" : ""}`}
@@ -27,6 +32,7 @@ const ExpirationTimeField = ({}) => {
       </Typography.Title>
       <DatePicker
         defaultPickerValue={moment(new Date(selectedFile.expiration))}
+        disabledDate={disabledDate}
         value={moment(new Date(selectedFile.expiration))}
         size="large"
         showTime

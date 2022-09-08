@@ -1,5 +1,6 @@
 import React, { useRef, useContext, useState } from "react";
 import axios from "axios";
+import { SuccessModal } from "./SuccessModal";
 
 type CurrentFileData = { file: File; expiration: number } | null;
 type UploadContextState = {
@@ -15,6 +16,7 @@ const UploadContext = React.createContext({});
 
 export const UploadContextProvider = ({ children }: { children: any }) => {
   const [selectedFile, setFile] = useState<CurrentFileData>(null);
+  const [urlReceived, setUrlReceived] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const getFile = (e: any) => {
@@ -39,14 +41,16 @@ export const UploadContextProvider = ({ children }: { children: any }) => {
         "Expiration-Time": selectedFile.expiration,
       },
     };
-    axios.put("http://localhost/v1/file", bodyFormData, requestConfig);
-    // setFile(null);
+    axios.put("http://localhost/v1/file", bodyFormData, requestConfig).then(response => {
+      setUrlReceived(response.data);
+    });
     e.preventDefault();
     e.stopPropagation();
   };
 
   const clearSelection = () => {
     setFile(null);
+    setUrlReceived('')
   };
 
   const openFileSelection = () =>
@@ -83,6 +87,9 @@ export const UploadContextProvider = ({ children }: { children: any }) => {
         type="file"
         ref={inputRef}
       />
+      {urlReceived && <SuccessModal url={urlReceived} onClose={() => {
+        clearSelection()
+      }} />}
     </UploadContext.Provider>
   );
 };
