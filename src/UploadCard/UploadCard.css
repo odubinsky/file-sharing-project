@@ -1,0 +1,13 @@
+
+
+.uploadCard {
+  border-radius: 10px;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+  padding: 50px;
+}
+

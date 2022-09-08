@@ -1,0 +1,10 @@
+.submitButton {
+  width: 200px;
+  padding-left: 20px;
+}
+
+.buttonsContainer {
+  justify-self: center;
+  display: flex;
+  column-gap: 10px;
+}
