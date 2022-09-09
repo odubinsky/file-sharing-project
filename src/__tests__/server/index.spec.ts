@@ -11,14 +11,15 @@ let mongoDbClient: any;
 test('Should add file and delete it after expiration', async () =>{
   mongoDbClient = await (await import('../../../server/mongodb/mongoDbClient')).default
   await mongoDbClient.waitForConnectionPromise;
-  const testFileName = '/test.txt';
-  fs.writeFileSync(filesDir + testFileName, '');
-  await mongoDbClient.addFile(testFileName, Date.now().toString())
+  const testFileName = 'test.txt';
+  const testFilePath = filesDir + '/' + testFileName;
+  fs.writeFileSync(testFilePath, '');
+  await mongoDbClient.addFile(testFileName, (Date.now()).toString() )
   await removeDeletedFiles(mongoDbClient);
   await wait(1000)
   let exists;
   try {
-    exists = fs.readFileSync(filesDir + testFileName);
+    exists = fs.readFileSync(testFilePath);
   } catch(e) {
 
   }
