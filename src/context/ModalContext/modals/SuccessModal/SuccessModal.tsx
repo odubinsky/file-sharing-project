@@ -4,9 +4,12 @@ import { CopyOutlined } from '@ant-design/icons'
 import './SuccessModal.css'
 
 
-export const SuccessModal = ({url, onClose}: {url?: string, onClose: () => void}) => {
+export const SuccessModal = ({url, onClose, onCancel}: {url?: string, onClose: () => void, onCancel: () => void}) => {
   const [showAlert, setShowAlert] = useState(false)
-  return <Modal footer={null} open={!!url} onCancel={onClose} >
+  return <Modal footer={null} open={!!url} onCancel={() => {
+    onClose();
+    onCancel();
+  }} >
   <Result
     status="success"
     title="Successfully Uploaded"

@@ -2,7 +2,6 @@ import "./App.css";
 import React from "react";
 import UploadCard from "./UploadCard/UploadCard";
 import { useEffect } from "react";
-import { UploadContextProvider } from "./context/UploadContext/UploadContext";
 
 function App() {
   useEffect(() => {
@@ -15,12 +14,10 @@ function App() {
     };
   }, []);
 
-  return (
-    <UploadContextProvider>
-      <div className="App">
+  return (  
+    <div className="App">
         <UploadCard />
-      </div>
-    </UploadContextProvider>
+    </div>
   );
 }
 

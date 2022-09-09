@@ -1,7 +1,7 @@
 import React, { useRef, useContext, useState } from "react";
-import axios from "axios";
-import { SuccessModal } from "./SuccessModal";
-
+import api from '../../api/uploadApi'
+import { useModal } from "../ModalContext/ModalContext";
+import {ModalTypes} from '../ModalContext/modals/consts'
 type CurrentFileData = { file: File; expiration: number } | null;
 type UploadContextState = {
   upload: (e: any) => void;
@@ -10,6 +10,7 @@ type UploadContextState = {
   setExpirationTime: (expiration: number) => void;
   setFile: (file: CurrentFileData) => void;
   clearSelection: () => void;
+  getFile: (e: Event) => void;
 };
 
 const UploadContext = React.createContext({});
@@ -17,9 +18,12 @@ const UploadContext = React.createContext({});
 export const UploadContextProvider = ({ children }: { children: any }) => {
   const [selectedFile, setFile] = useState<CurrentFileData>(null);
   const [urlReceived, setUrlReceived] = useState('');
+  const { showModal } = useModal();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const getFile = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
     const files = (e.target?.files || e.dataTransfer?.files) as
       | FileList
       | undefined;
@@ -29,23 +33,18 @@ export const UploadContextProvider = ({ children }: { children: any }) => {
     }
   };
 
-  const upload = (e: any) => {
+  const upload = async (e: any) => {
     if (!selectedFile) {
       return;
     }
-    const bodyFormData = new FormData();
-    bodyFormData.append("file", selectedFile.file);
-    const requestConfig = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "Expiration-Time": selectedFile.expiration,
-      },
-    };
-    axios.put("http://localhost/v1/file", bodyFormData, requestConfig).then(response => {
-      setUrlReceived(response.data);
-    });
-    e.preventDefault();
-    e.stopPropagation();
+    try {
+      const res = await api.uploadFile(selectedFile)
+      setUrlReceived(res);
+      showModal({type: ModalTypes.success, props: {url: res, onClose: () => clearSelection()}})
+    } catch(e) {
+      showModal({type: ModalTypes.error, props: {}})
+      console.error(e)
+    }    
   };
 
   const clearSelection = () => {
@@ -73,6 +72,7 @@ export const UploadContextProvider = ({ children }: { children: any }) => {
     setFile,
     setExpirationTime,
     clearSelection,
+    getFile
   };
 
   return (
@@ -87,9 +87,7 @@ export const UploadContextProvider = ({ children }: { children: any }) => {
         type="file"
         ref={inputRef}
       />
-      {urlReceived && <SuccessModal url={urlReceived} onClose={() => {
-        clearSelection()
-      }} />}
+      
     </UploadContext.Provider>
   );
 };

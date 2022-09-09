@@ -1,6 +1,6 @@
 import { wait } from '@testing-library/user-event/dist/utils';
 import fs from 'fs';
-import {filesDir} from '../../../server/consts'
+import { filesDir } from '../../../server/consts'
 import { removeDeletedFiles } from '../../../server/scheduledJobs/removeDeletedFiles';
 
 global.TextEncoder = require("util").TextEncoder;

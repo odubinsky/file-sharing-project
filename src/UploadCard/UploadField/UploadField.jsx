@@ -9,7 +9,7 @@ const UploadField = ({}) => {
   return selectedFile ? (
     <div className="uploadField">{selectedFile.file.name}</div>
   ) : (
-    <div onClick={openFileSelection} onDrop={getFile} className="uploadField">
+    <div onClick={openFileSelection} onDrop={(e) => getFile(e)} className="uploadField">
       <Typography.Title
         className="emptyStateText"
         level={3}
