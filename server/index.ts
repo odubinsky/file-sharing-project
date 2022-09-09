@@ -1,15 +1,16 @@
 
 import express from "express"
-import path from "path"
-import mongoose, { Cursor } from "mongoose"
 import  { dbconn  } from "./mongodb/connection";
 import multer from "multer"
-import {GridFSBucket} from 'mongodb'
 import fs from 'fs';
 import cron from 'node-cron'
+import path from 'path';
 
 const port = 80;
+const basePath = '/v1/'
+const filesDir = './files';
 const app = express();
+
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Methods", "DELETE, POST, GET, PUT ,OPTIONS");
@@ -26,16 +27,14 @@ const storage = multer.diskStorage({
 })
 
 const uploadMiddleware = multer({storage});
-const basePath = '/v1/'
+
 
 app.put(basePath + 'file', uploadMiddleware.single('file'), async (req, res) => {
   const expirationTime = req.headers['expiration-time'];
   const file = req.file;
   if(file && expirationTime) {
     const originalFileName = file.originalname;
-    const fileInMemory = fs.existsSync(originalFileName);
-    // const fileName = originalFileName + (fileInMemory ? ('_' + Date.now()) : '');
-    !fileInMemory && await dbconn.db.collection('files_collection').insertOne({fileName: originalFileName, expiresAt: new Date(Number(expirationTime))});
+    await dbconn.db.collection('files').insertOne({fileName: originalFileName, expireAt: new Date(Number(expirationTime))});
     res.send('localhost' + basePath + originalFileName);
   } else {
     res.status(500)
@@ -59,15 +58,23 @@ app.listen(port, () => {
 });
 
 
-cron.schedule('*/1 * * * *', function() {
-  console.log('cron running')
-  const cursor = dbconn.db.collection('files_collection').find({expiresAt: {$lt: new Date()}});
-  cursor.forEach(doc => {
-    const path = './files/' + doc.fileName;
-    if(fs.existsSync(path)) {
-      fs.rmSync(path)
+cron.schedule('*/20 * * * * *', function() {
+  console.log('cron running');
+  fs.readdir(filesDir, (err, list) => {
+    if(err) {
+      return;
+    } else {
+      list.forEach(function(fileName) {
+        dbconn.db.collection('files').findOne({fileName}).then(doc => {
+          if(!doc) {
+            try {
+              fs.rmSync(filesDir + '/' + fileName)
+            } catch(e) {
+              console.log('Failed to remove expired file', fileName)
+            }
+          }
+        });
+      })
     }
-    dbconn.db.collection('files_collection').deleteOne({_id: doc._id})
-    console.log('removed ' + doc.fileName)
   })
 });

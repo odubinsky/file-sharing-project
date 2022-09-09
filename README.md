@@ -4,13 +4,6 @@
 
 Make sure mongodb is running on your machine.
 
-Add a new file with the name `.env` in the root directory of the project. Add the following lines to the file:
-```
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/file-sharing-app
-```
-
-
 ## Available Scripts
 
 In the project directory, you can run:

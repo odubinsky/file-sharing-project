@@ -30,7 +30,7 @@
     "client": "react-scripts start",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "concurrently \"nodemon server/index.ts\" \"jest\"",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
