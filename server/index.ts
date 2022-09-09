@@ -1,10 +1,11 @@
 
 import express from "express"
-import  { dbconn  } from "./mongodb/connection";
+
 import multer from "multer"
 import fs from 'fs';
 import cron from 'node-cron'
-import path from 'path';
+import mongoDbClient from './mongodb/mongoDbClient'
+import { removeDeletedFiles } from "./scheduledJobs/removeDeletedFiles";
 
 const port = 80;
 const basePath = '/v1/'
@@ -34,10 +35,10 @@ app.put(basePath + 'file', uploadMiddleware.single('file'), async (req, res) => 
   const file = req.file;
   if(file && expirationTime) {
     const originalFileName = file.originalname;
-    await dbconn.db.collection('files').insertOne({fileName: originalFileName, expireAt: new Date(Number(expirationTime))});
+    await mongoDbClient.addFile(originalFileName, expirationTime);
     res.send('localhost' + basePath + originalFileName);
   } else {
-    res.status(500)
+    res.status(400)
   }
 });
 
@@ -45,8 +46,12 @@ app.put(basePath + 'file', uploadMiddleware.single('file'), async (req, res) => 
 app.get(basePath + ':fileUrl', (req, res) => {
   const {params: {fileUrl}} = req;
   try {
-    const file = fs.readFileSync('./files/' + fileUrl)
-    res.send(file)
+    mongoDbClient.getFileByName(fileUrl).then(doc => {
+      if(doc) {
+        const file = fs.readFileSync(filesDir + '/' + fileUrl);
+        res.send(file);
+      }
+    });
   } catch(e) {
     res.status(404)
   }
@@ -58,23 +63,7 @@ app.listen(port, () => {
 });
 
 
-cron.schedule('*/20 * * * * *', function() {
+cron.schedule('* */1 * * *', function() {
   console.log('cron running');
-  fs.readdir(filesDir, (err, list) => {
-    if(err) {
-      return;
-    } else {
-      list.forEach(function(fileName) {
-        dbconn.db.collection('files').findOne({fileName}).then(doc => {
-          if(!doc) {
-            try {
-              fs.rmSync(filesDir + '/' + fileName)
-            } catch(e) {
-              console.log('Failed to remove expired file', fileName)
-            }
-          }
-        });
-      })
-    }
-  })
+  removeDeletedFiles(mongoDbClient);
 });

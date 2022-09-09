@@ -1,11 +1,15 @@
-import mongoose, { Collection } from "mongoose"
-
+import mongoose from "mongoose"
 export const dbconn = mongoose.createConnection("mongodb://localhost/project", {
   //@ts-ignore
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
+export const waitForConnectionPromise = new Promise((resolve, reject) => {
+  dbconn.on('connected', async function() {
+    resolve(true);
+  });
+})
 
 const initCollection = async () => {
   await dbconn.db.createCollection('files')
@@ -22,6 +26,7 @@ dbconn.on('connected', async function() {
   } catch(e) {
     console.log('Did not crete collection ', e)
   }
+  console.log('database is connected successfully');
 });
 
 dbconn.on('disconnected',function(){

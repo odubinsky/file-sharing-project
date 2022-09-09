@@ -6,21 +6,14 @@ import moment, { Moment } from 'moment'
 
 const ExpirationTimeField = ({}) => {
   const { setExpirationTime, selectedFile } = useUpload();
-  // const [showAlert, setShowAlert] = useState(false);
 
   const changeExpirationTime = (value: any) => {
     const timeGotten = value.toDate().getTime() as number;
-    // if (Date.now() > timeGotten) {
-    //   setShowAlert(true);
-    //   setTimeout(() => setShowAlert(false), )
-    //   return;
-    // }
     setExpirationTime(timeGotten);
   };
 
   const disabledDate = (current: Moment) => {
-    // Can not select days before today and today
-    return current && current < moment().endOf('day');
+    return current < moment().endOf('day');
   };
 
   return (
@@ -39,9 +32,6 @@ const ExpirationTimeField = ({}) => {
         onChange={changeExpirationTime} 
         onOk={() => {}}
       />
-      {/* {showAlert && (
-        <Alert type="error" message="Date is older than current date" />
-      )} */}
     </div> : null
   );
 };
